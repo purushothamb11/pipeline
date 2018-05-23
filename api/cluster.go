@@ -103,7 +103,7 @@ func CreateCluster(c *gin.Context) {
 	log := logger.WithFields(logrus.Fields{"tag": constants.TagCreateCluster})
 	//TODO refactor logging here
 
-	log.Info("Cluster creation stared")
+	log.Info("Cluster creation started")
 
 	log.Debug("Bind json into CreateClusterRequest struct")
 	// bind request body to struct
@@ -175,8 +175,6 @@ func CreateCluster(c *gin.Context) {
 	}
 
 	log.Info("Creating new entry with cloud type: ", createClusterRequest.Cloud)
-
-	var commonCluster cluster.CommonCluster
 
 	// TODO check validation
 	// This is the common part of cluster flow

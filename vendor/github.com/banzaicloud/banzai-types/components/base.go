@@ -18,6 +18,12 @@ type BanzaiResponse struct {
 	Message    string `json:"message,omitempty"`
 }
 
+type CreateBucketRequest struct {
+	Name     string `json:"name" binding:"required"`
+	Location string `json:"location"`
+	SecretId string `json:"secret_id" binding:"required"`
+}
+
 // CreateClusterRequest describes a create cluster request
 type CreateClusterRequest struct {
 	Name        string `json:"name" binding:"required"`
