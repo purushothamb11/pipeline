@@ -2107,6 +2107,52 @@ paths:
                 $ref: '#/components/schemas/Unauthorized'
 
   '/api/v1/orgs/{orgId}/buckets':
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - storage
+      summary: List object storage buckets
+      operationId: ListObjectStoreBuckets
+      description: List object store buckets accessible by the credentials referenced by the given secret.
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          description: Organization identification
+          schema:
+            type: integer
+        - name: secret_id
+          in: header
+          required: true
+          description: Secret identification
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Storage buckets listed"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListStorageBucketsResponse'
+        '400':
+          description: "Error during getting storage buckets"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_400'
+        '401':
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseError_500'
     post:
       security:
         - bearerAuth: []
@@ -2296,55 +2342,6 @@ paths:
                 $ref: '#/components/schemas/BaseError_400'
         '404':
           description: Object store bucket not found
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseError_500'
-
-
-  '/api/v1/orgs/{orgId}/buckets':
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - storage
-      summary: List object storage buckets
-      operationId: ListObjectStoreBuckets
-      description: List object store buckets accessible by the credentials referenced by the given secret.
-      parameters:
-        - name: orgId
-          in: path
-          required: true
-          description: Organization identification
-          schema:
-            type: integer
-        - name: secret_id
-          in: header
-          required: true
-          description: Secret identification
-          schema:
-            type: string
-      responses:
-        '200':
-          description: "Storage buckets listed"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ListStorageBucketsResponse'
-        '400':
-          description: "Error during getting storage buckets"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseError_400'
-        '401':
-          description: "Unauthorized"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Unauthorized'
         '500':
           description: Internal server error
           content:
