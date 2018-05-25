@@ -2242,25 +2242,12 @@ paths:
           description: "Object store buckets exists"
         '401':
           description: "Unauthorized"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Unauthorized'
         '400':
           description: Error while checking object store bucket status
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseError_400'
         '404':
           description: Object store bucket not found
         '500':
           description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseError_500'
-
     get:
       security:
         - bearerAuth: []
