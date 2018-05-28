@@ -32,6 +32,10 @@ type UpdateClusterGoogle struct {
 	Master      *Master              `json:"master,omitempty"`
 }
 
+type CreateGoogleObjectStoreBucketProperties struct {
+	Location        string `json:"location" 		binding:"required"`
+}
+
 // Validate validates Google cluster create request
 func (g *CreateClusterGoogle) Validate() error {
 
@@ -111,3 +115,4 @@ func isValidVersion(version string) bool {
 	isOk, _ := regexp.MatchString("^[1-9]\\.([8-9]\\d*|[1-9]\\d+)|^[1-9]\\d+\\.|^[2-9]\\.", version)
 	return isOk
 }
+
