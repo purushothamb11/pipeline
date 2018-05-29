@@ -13,16 +13,29 @@ import (
 	"github.com/sirupsen/logrus"
 	"net/url"
 	"strings"
+	pipelineAuth "github.com/banzaicloud/pipeline/auth"
 )
+
+type ManagedAzureBlobStore struct {
+	ID             uint      `gorm:"primary_key"`
+	User   				 pipelineAuth.User `gorm:"foreignkey:UserID"`
+	UserID 				 uint			 `gorm:"index;not null"`
+	Name   				 string    `gorm:"unique_index:bucketName"`
+	ResourceGroup  string
+	StorageAccount string
+}
 
 type AzureObjectStore struct {
 	storageAccount string
 	secret         *secret.SecretsItemResponse
 	resourceGroup  string
 	location       string
+	user					 *pipelineAuth.User
 }
 
 func (b *AzureObjectStore) CreateBucket(bucketName string) error {
+	createResourceGroup(b)
+	return nil
 	exists, err := checkStorageAccountExistence(b)
 	if !exists && err == nil {
 		err = createStorageAccount(b)
@@ -168,13 +181,16 @@ func createResourceGroup(b *AzureObjectStore) error {
 		return err
 	}
 	gclient.Authorizer = authorizer
-	result, err := gclient.CreateOrUpdate(context.TODO(), b.resourceGroup,
-		resources.Group{Location: to.StringPtr(b.location)})
-	if err != nil {
-		log.Error(err)
-		return err
+	res, _ := gclient.Get(context.TODO(), b.resourceGroup)
+	if res.StatusCode != 404 {
+		result, err := gclient.CreateOrUpdate(context.TODO(), b.resourceGroup,
+			resources.Group{Location: to.StringPtr(b.location)})
+		if err != nil {
+			log.Error(err)
+			return err
+		}
+		log.Info(result.Status)
 	}
-	log.Info(result.Status)
 	return nil
 }
 
@@ -192,4 +208,8 @@ func newAuthorizer(s *secret.SecretsItemResponse) (autorest.Authorizer, error) {
 	}
 
 	return authorizer, nil
+}
+
+func (b *AzureObjectStore) Persist(bucketName string, user *pipelineAuth.User) error {
+	return nil
 }

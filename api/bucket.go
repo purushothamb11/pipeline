@@ -85,6 +85,16 @@ func CreateObjectStoreBuckets(c *gin.Context) {
 		})
 		return
 	}
+	log.Debug("Determining Current User")
+	user, err := auth.GetCurrentUserFromDB(c.Request)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, components.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Error:   err.Error(),
+			Message: err.Error(),
+		})
+	}
+	log.Debug("Current user determined")
 
 	log.Debug("Validating secret")
 	retrievedSecret, err := secret.Store.Get(organizationID, createBucketRequest.SecretId)
@@ -107,7 +117,7 @@ func CreateObjectStoreBuckets(c *gin.Context) {
 	log.Debug("Secret validation successful")
 	log.Debug("Create CommonObjectStoreBuckets from request")
 	commonObjectStore, err :=
-		objectstore.CreateCommonObjectStoreBuckets(createBucketRequest, retrievedSecret)
+		objectstore.CreateCommonObjectStoreBuckets(createBucketRequest, retrievedSecret, user)
 	if err != nil {
 		c.JSON(http.StatusNotImplemented, components.ErrorResponse{
 			Code:    http.StatusNotImplemented,
@@ -117,6 +127,8 @@ func CreateObjectStoreBuckets(c *gin.Context) {
 	}
 	log.Debug("CommonObjectStoreBuckets created")
 	log.Debug("Bucket creation started")
+	log.Debug("Persisting Bucket description")
+	log.Debug("Persisting Bucket description succeeded")
 	if err = commonObjectStore.CreateBucket(createBucketRequest.Name); err != nil {
 		c.JSON(http.StatusBadRequest, components.ErrorResponse{
 			Code:    http.StatusBadRequest,

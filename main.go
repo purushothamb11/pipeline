@@ -15,6 +15,7 @@ import (
 	"github.com/qor/auth/auth_identity"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/banzaicloud/pipeline/objectstore"
 )
 
 //Version of Pipeline
@@ -86,6 +87,9 @@ func main() {
 		&defaults.AKSNodePoolProfile{},
 		&defaults.GKEProfile{},
 		&defaults.GKENodePoolProfile{},
+		&objectstore.ManagedAmazonBucket{},
+		&objectstore.ManagedAzureBlobStore{},
+		&objectstore.ManagedGoogleBuckets{},
 	).Error; err != nil {
 
 		panic(err)

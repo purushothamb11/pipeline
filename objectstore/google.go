@@ -9,12 +9,21 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
-	api_storage "google.golang.org/api/storage/v1"
+	apiStorage "google.golang.org/api/storage/v1"
+	"github.com/banzaicloud/pipeline/auth"
 )
+
+type ManagedGoogleBuckets struct {
+	ID     uint      `gorm:"primary_key"`
+	User   auth.User `gorm:"foreignkey:UserID"`
+	UserID uint			 `gorm:"index;not null"`
+	Name   string    `gorm:"unique_index:bucketName"`
+}
 
 type GoogleObjectStore struct {
 	location       string
 	serviceAccount *cluster.ServiceAccount // TODO: serviceAccount type should be in a common place?
+	user           *auth.User
 }
 
 // TODO: this logic is duplicate thus should be in a common place so as it can be used from gke.go:newClientFromCredentials() as well
@@ -108,10 +117,14 @@ func newGoogleCredentials(b *GoogleObjectStore) (*google.Credentials, error) {
 
 	ctx := context.Background()
 
-	credentials, err := google.CredentialsFromJSON(ctx, credentialsJson, api_storage.DevstorageFullControlScope)
+	credentials, err := google.CredentialsFromJSON(ctx, credentialsJson, apiStorage.DevstorageFullControlScope)
 	if err != nil {
 		return nil, err
 	}
 
 	return credentials, nil
+}
+
+func (b *GoogleObjectStore) Persist(bucketName string, user *auth.User) error {
+	return nil
 }

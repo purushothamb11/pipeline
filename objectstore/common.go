@@ -7,6 +7,7 @@ import (
 	"github.com/banzaicloud/pipeline/config"
 	"github.com/banzaicloud/pipeline/secret"
 	"github.com/sirupsen/logrus"
+	"github.com/banzaicloud/pipeline/auth"
 )
 
 var logger *logrus.Logger
@@ -34,23 +35,28 @@ func ListCommonObjectStoreBuckets(s *secret.SecretsItemResponse) (CommonObjectSt
 	}
 }
 
-func CreateCommonObjectStoreBuckets(createBucketRequest components.CreateBucketRequest, s *secret.SecretsItemResponse) (CommonObjectStore, error) {
+func CreateCommonObjectStoreBuckets(createBucketRequest components.CreateBucketRequest, s *secret.SecretsItemResponse, user *auth.User) (CommonObjectStore, error) {
 	switch s.SecretType {
 	case constants.Amazon:
 		return &AmazonObjectStore{
-			region: createBucketRequest.Properties.CreateAmazonObjectStoreBucketProperties.Location,
-			secret: s}, nil
+				region: createBucketRequest.Properties.CreateAmazonObjectStoreBucketProperties.Location,
+				secret: s,
+				user: user,
+			}, nil
 	case constants.Google:
 		return &GoogleObjectStore{
-			location:       createBucketRequest.Properties.CreateGoogleObjectStoreBucketProperties.Location,
-			serviceAccount: NewGoogleServiceAccount(s),
-		}, nil
+				location:       createBucketRequest.Properties.CreateGoogleObjectStoreBucketProperties.Location,
+				serviceAccount: NewGoogleServiceAccount(s),
+				user:           user,
+			}, nil
 	case constants.Azure:
 		return &AzureObjectStore{
-			storageAccount: createBucketRequest.Properties.CreateAzureObjectStoreBucketProperties.StorageAccount,
-			resourceGroup:  createBucketRequest.Properties.CreateAzureObjectStoreBucketProperties.ResourceGroup,
-			location:       createBucketRequest.Properties.CreateAzureObjectStoreBucketProperties.Location,
-			secret:         s}, nil
+				storageAccount: createBucketRequest.Properties.CreateAzureObjectStoreBucketProperties.StorageAccount,
+				resourceGroup:  createBucketRequest.Properties.CreateAzureObjectStoreBucketProperties.ResourceGroup,
+				location:       createBucketRequest.Properties.CreateAzureObjectStoreBucketProperties.Location,
+				secret:         s,
+				user:           user,
+			}, nil
 	default:
 		return nil, fmt.Errorf("creating a bucket is not supported for %s", s)
 	}

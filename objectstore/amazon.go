@@ -7,11 +7,24 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/banzaicloud/pipeline/secret"
 	"github.com/sirupsen/logrus"
+	"github.com/banzaicloud/pipeline/auth"
+	"github.com/banzaicloud/pipeline/model"
+	"fmt"
+	"github.com/pkg/errors"
 )
+
+type ManagedAmazonBucket struct {
+	ID     uint      `gorm:"primary_key"`
+	User   auth.User `gorm:"foreignkey:UserID"`
+	UserID uint			 `gorm:"index;not null"`
+	Name   string    `gorm:"unique_index:bucketName"`
+	Region string
+}
 
 type AmazonObjectStore struct {
 	region string
 	secret *secret.SecretsItemResponse
+	user   *auth.User
 }
 
 func (b *AmazonObjectStore) CreateBucket(bucketName string) error {
@@ -27,9 +40,15 @@ func (b *AmazonObjectStore) CreateBucket(bucketName string) error {
 	input := &s3.CreateBucketInput{
 		Bucket: aws.String(bucketName),
 	}
+	err = persistToDb(bucketName, b.user, b.region)
+	if err != nil {
+		log.Errorf("Error happened during persisting bucket description to DB")
+		return err
+	}
 	_, err = svc.CreateBucket(input)
 	if err != nil {
 		log.Errorf("Could not create a new S3 Bucket, %s", err.Error())
+		errors.Wrap(err, deleteFromDb(bucketName).Error())
 		return err
 	}
 	log.Debugf("Waiting for bucket %s to be created...", bucketName)
@@ -95,4 +114,22 @@ func (b *AmazonObjectStore) createS3Client() (*s3.S3, error) {
 	}
 	log.Info("AWS session successfully created")
 	return s3.New(s), nil
+}
+
+func persistToDb(bucketName string, user *auth.User, region string) error {
+	db := model.GetDB()
+	cs := ManagedAmazonBucket{Name: bucketName, User: *user, Region: region}
+	return db.Save(&cs).Error
+}
+
+
+func deleteFromDb(bucketName string) error {
+	log := logger.WithFields(logrus.Fields{"tag": "deleteFromDb"})
+	log.Info("Deleting from DB...")
+	db := model.GetDB()
+	bucketDesc := &ManagedAmazonBucket{}
+	if db.Find(bucketDesc, ManagedAmazonBucket{Name:bucketName}).Error != nil {
+		return fmt.Errorf("could not find bucketName %s in DB", bucketName)
+	}
+	return db.Delete(bucketDesc).Error
 }
