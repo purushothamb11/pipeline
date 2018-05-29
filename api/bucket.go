@@ -209,7 +209,6 @@ func DeleteAmazonObjectStoreBucket(c *gin.Context) {
 	name := c.Param("name")
 	region := c.Param("region")
 
-
 	organizationId := auth.GetCurrentOrganization(c.Request).IDString()
 	secretId := c.GetHeader("secretId")
 	log.Debugf("secretId=%s", secretId)
@@ -223,13 +222,13 @@ func DeleteAmazonObjectStoreBucket(c *gin.Context) {
 		return
 	}
 
-
 	objectStore, err := objectstore.NewAmazonObjectStore(retrievedSecret, region)
 	if err != nil {
 		log.Errorf("Instantiating AmazonObjectStore failed: %s", err.Error())
 		replyWithErrorResponse(c, errorResponseFrom(err))
 		return
 	}
+
 
 	if err = objectStore.DeleteBucket(name); err != nil {
 		log.Errorf("Deleting S3 bucket: organisation id=%s, region=%s, bucket=%s failed: %s", organizationId, region, name, err.Error())

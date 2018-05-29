@@ -67,6 +67,13 @@ func (b *AmazonObjectStore) CreateBucket(bucketName string) error {
 func (b *AmazonObjectStore) DeleteBucket(bucketName string) error {
 	log := logger.WithFields(logrus.Fields{"tag": "AmazonObjectStore.DeleteBucket"})
 
+	// check if the S3 to be deleted is managed or not
+	// only managed buckets are allowed to be deleted
+	if _, err := getManagedBucket(b.newManagedBucketSearchCriteria(bucketName)); err != nil {
+		return err
+	}
+
+
 	svc, err := b.createS3Client()
 	if err != nil {
 		log.Error("Creating S3Client failed: %s", err.Error())
@@ -133,3 +140,13 @@ func deleteFromDb(bucketName string) error {
 	}
 	return db.Delete(bucketDesc).Error
 }
+
+
+func (b *AmazonObjectStore) newManagedBucketSearchCriteria(bucketName string) *ManagedAmazonBucket {
+	return &ManagedAmazonBucket{
+		Region: b.region,
+		User:   *b.user,
+		Name:   bucketName,
+	}
+}
+

@@ -8,6 +8,7 @@ import (
 	"github.com/banzaicloud/pipeline/secret"
 	"github.com/sirupsen/logrus"
 	"github.com/banzaicloud/pipeline/auth"
+	"github.com/banzaicloud/pipeline/model"
 )
 
 var logger *logrus.Logger
@@ -81,4 +82,26 @@ func NewAzureObjectStore(s *secret.SecretsItemResponse, resourceGroup, storageAc
 		resourceGroup:  resourceGroup,
 		secret:         s,
 	}, nil
+}
+
+
+func getManagedBucket(searchCriteria interface{}) (interface{}, error) {
+	var managedBuckets []interface{}
+
+	if err := model.GetDB().Where(searchCriteria).Find(&managedBuckets).Error; err != nil {
+		return nil, err
+	}
+
+	if len(managedBuckets) == 0 {
+		return nil, nil // managed not found
+	}
+
+	if len(managedBuckets) > 1 {
+		return nil, nil // internal server error
+	}
+
+	managedBucket := managedBuckets[0]
+
+	return &managedBucket, nil
+
 }
