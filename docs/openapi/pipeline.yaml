@@ -2122,12 +2122,24 @@ paths:
           description: Organization identification
           schema:
             type: integer
-        - name: secret_id
+        - name: secretId
           in: header
           required: true
           description: Secret identification
           schema:
             type: string
+        - name: cloudType
+          in: query
+          schema:
+            type: string
+            enum: [amazon, google, azure]
+          required: true
+          description: Identifies the cloud provider
+        - name: region
+          in: query
+          schema:
+            type: string
+          description: Identifies the cloud region. Required by Amazon only.
       responses:
         '200':
           description: "Storage buckets listed"
@@ -2136,7 +2148,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ListStorageBucketsResponse'
         '400':
-          description: "Error during getting storage buckets"
+          description: "Bad request"
           content:
             application/json:
               schema:
@@ -2294,60 +2306,6 @@ paths:
           description: Object store bucket not found
         '500':
           description: Internal server error
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - storage
-      summary: Get object store bucket
-      operationId: GetObjectStoreBucket
-      description: Retrieves the object store bucket given its name
-      parameters:
-        - name: orgId
-          in: path
-          required: true
-          description: Organization identification
-          schema:
-            type: integer
-        - name: name
-          in: path
-          required: true
-          description: Bucket identification
-          schema:
-            type: integer
-        - name: secret_id
-          in: header
-          required: true
-          description: Secret identification
-          schema:
-            type: string
-      responses:
-        '200':
-          description: "Object store buckets"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GetObjectStoreBucketStatusRespone'
-        '401':
-          description: "Unauthorized"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Unauthorized'
-        '400':
-          description: Error while retrieving object store bucket
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseError_400'
-        '404':
-          description: Object store bucket not found
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BaseError_500'
 
 components:
   securitySchemes:
@@ -4222,20 +4180,32 @@ components:
         resourceGroup:
           type: string
 
-    GetObjectStoreBucketStatusRespone:
-          type: object
-          properties:
-            status:
-              type: string
-              example: "AVAILABLE"
-            status_message:
-              type: string
-              example: "Object store bucket is available"
-            name:
-              type: string
-              example: "s3://mybucket"
+    BucketInfo:
+      type: object
+      required:
+        - name
+        - managed
+      properties:
+        name:
+          type: string
+          example: "mybucket"
+        managed:
+          type: boolean
+        azure:
+          $ref: '#/components/schemas/AzureBlobStorageProps'
 
     ListStorageBucketsResponse:
       type: array
       items:
-        $ref: '#/components/schemas/GetObjectStoreBucketStatusRespone'
+        $ref: '#/components/schemas/BucketInfo'
+
+    AzureBlobStorageProps:
+      type: object
+      required:
+        - resourceGroup
+        - storageAccount
+      properties:
+        resourceGroup:
+          type: string
+        storageAccount:
+          type: string
