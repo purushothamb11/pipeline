@@ -2235,19 +2235,32 @@ paths:
           description: Bucket identification
           schema:
             type: integer
-        - name: secret_id
+        - name: secretId
           in: header
           required: true
           description: Secret identification
           schema:
             type: string
+        - name: cloudType
+          in: query
+          description: Identifies the cloud provider
+          schema:
+            type: string
+            enum: [amazon, google, azure]
+          required: true
+        - name: resourceGroup
+          in: query
+          description: Azure resource group the storage account that holds the bucket (storage container) to be deleted
+          schema:
+            type: string
+        - name: storageAccount
+          in: query
+          description: Azure storage account to delete the bucket (storage container) from
+          schema:
+            type: string
       responses:
         '200':
           description: "Storage bucket deleted successfully"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectStoreBucketDeleteResponse'
         '401':
           description: "Unauthorized"
           content:
@@ -4141,19 +4154,6 @@ components:
           oneOf:
           - $ref: '#/components/schemas/CreateAmazonObjectStoreBucketProperties'
           - $ref: '#/components/schemas/CreateAzureObjectStoreBucketProperties'
-
-    ObjectStoreBucketDeleteResponse:
-      type: object
-      properties:
-        status:
-          type: integer
-          example: 200
-        message:
-          type: string
-          example: "bucket deleted successfully"
-        name:
-          type: string
-          example: "mybucket"
 
     CreateAmazonObjectStoreBucketProperties:
       type: object
