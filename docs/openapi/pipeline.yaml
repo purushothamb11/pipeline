@@ -2135,7 +2135,7 @@ paths:
             enum: [amazon, google, azure]
           required: true
           description: Identifies the cloud provider
-        - name: region
+        - name: location
           in: query
           schema:
             type: string
