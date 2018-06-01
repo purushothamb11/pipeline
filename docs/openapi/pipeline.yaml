@@ -2181,13 +2181,12 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
-          description: "Storage created successfully"
+        '202':
+          description: "Storage bucket creation request accepted"
           content:
             application/json:
               schema:
-                type: string
-                example: "s3://mybucket"
+                $ref: '#/components/schemas/CreateObjectStoreBucketResponse'
         '401':
           description: "Unauthorized"
           content:
@@ -4158,11 +4157,11 @@ components:
     CreateObjectStoreBucketRequest:
       type: object
       required:
-        - secret_id
+        - secretId
         - name
         - properties
       properties:
-        secret_id:
+        secretId:
           type: string
         name:
           type: string
@@ -4171,6 +4170,7 @@ components:
           oneOf:
           - $ref: '#/components/schemas/CreateAmazonObjectStoreBucketProperties'
           - $ref: '#/components/schemas/CreateAzureObjectStoreBucketProperties'
+          - $ref: '#/components/schemas/CreateGoogleObjectStoreBucketProperties'
 
     CreateAmazonObjectStoreBucketProperties:
       type: object
@@ -4180,6 +4180,15 @@ components:
         location:
           type: string
           example: "eu-west-1"
+
+    CreateGoogleObjectStoreBucketProperties:
+      type: object
+      required:
+        - location
+      properties:
+        location:
+          type: string
+          example: "europe"
 
     CreateAzureObjectStoreBucketProperties:
       type: object
@@ -4196,6 +4205,15 @@ components:
           example: "westeurope"
         resourceGroup:
           type: string
+
+    CreateObjectStoreBucketResponse:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: "mybucket"
 
     BucketInfo:
       type: object
