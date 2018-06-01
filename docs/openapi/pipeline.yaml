@@ -2302,10 +2302,27 @@ paths:
           description: Bucket identification
           schema:
             type: integer
-        - name: secret_id
+        - name: secretId
           in: header
           required: true
           description: Secret identification
+          schema:
+            type: string
+        - name: cloudType
+          in: query
+          description: Identifies the cloud provider
+          schema:
+            type: string
+            enum: [amazon, google, azure]
+          required: true
+        - name: resourceGroup
+          in: query
+          description: Azure resource group the storage account that holds the bucket (storage container) be checked
+          schema:
+            type: string
+        - name: storageAccount
+          in: query
+          description: Azure storage account to delete the bucket (storage container) to be checked
           schema:
             type: string
       responses:
