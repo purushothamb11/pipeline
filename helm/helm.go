@@ -182,7 +182,7 @@ func CreateDeployment(chartName string, releaseName string, valueOverrides []byt
 		return nil, err
 	}
 
-	log.Infof("Loading chart '%s'", env)
+	log.Infof("Loading chart from %q", env.Home)
 	chartRequested, err := chartutil.Load(downloadedChartPath)
 	if err != nil {
 		return nil, fmt.Errorf("Error loading chart: %v", err)
