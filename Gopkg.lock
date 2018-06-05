@@ -165,13 +165,14 @@
     "components",
     "components/amazon",
     "components/azure",
+    "components/catalog",
     "components/dummy",
     "components/google",
     "components/helm",
     "components/kubernetes",
     "constants"
   ]
-  revision = "55fa52a6f76dfb744cf04fcfeecb3f568e230e1d"
+  revision = "4c688ea629085c0def785609c9bfa51a0baf475d"
 
 [[projects]]
   branch = "master"
@@ -679,7 +680,6 @@
     "pkg/compare",
     "pkg/defaults",
     "pkg/hang",
-    "pkg/initapi",
     "pkg/kubeadm",
     "pkg/logger",
     "pkg/parser",
@@ -831,7 +831,10 @@
 
 [[projects]]
   name = "github.com/prometheus/client_golang"
-  packages = ["prometheus"]
+  packages = [
+    "prometheus",
+    "prometheus/promhttp"
+  ]
   revision = "c5b7fccd204277076155f10851dad72b76a49317"
   version = "v0.8.0"
 
@@ -1746,6 +1749,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fe3ff5164a4214c79b8b6ddab796b6567f5d369ccd6b02d729debd6ecbb7151a"
+  inputs-digest = "8862a07e10f1e12e0a08d4ac9bd4ab0ea179aa18d4443e85c4f012a14364460f"
   solver-name = "gps-cdcl"
   solver-version = 1

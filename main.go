@@ -7,6 +7,7 @@ import (
 	"github.com/banzaicloud/pipeline/api"
 	"github.com/banzaicloud/pipeline/auth"
 	"github.com/banzaicloud/pipeline/config"
+	"github.com/banzaicloud/pipeline/metrics"
 	"github.com/banzaicloud/pipeline/model"
 	"github.com/banzaicloud/pipeline/model/defaults"
 	"github.com/banzaicloud/pipeline/notify"
@@ -117,6 +118,7 @@ func main() {
 
 			orgs.GET("/:orgid/applications", api.GetApplications)
 			orgs.POST("/:orgid/applications", api.CreateApplication)
+			orgs.GET("/:orgid/applications/:id", api.ApplicationDetails)
 
 			orgs.GET("/:orgid/catalogs", api.GetCatalogs)
 			orgs.GET("/:orgid/catalogs/:name", api.CatalogDetails)
@@ -191,5 +193,6 @@ func main() {
 		listenPort = fmt.Sprintf(":%d", port)
 		logger.Info("Pipeline API listening on port ", listenPort)
 	}
+	go metrics.StartMetrics()
 	router.Run(listenPort)
 }
